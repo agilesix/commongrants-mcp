@@ -2,14 +2,14 @@
  * Reusable mock data for tests
  */
 
-import type { VAApiMetadata, VAApiInfo, OpenAPISpec } from "../../src/types/va-api.js";
+import type { ApiMetadata, ApiInfo, OpenAPISpec } from "../../src/types/api-types.js";
 import sampleApiSpec from "../fixtures/openapi-specs/sample-api.json";
 import apiResponses from "../fixtures/responses/api-responses.json";
 
 /**
  * Mock VA API metadata list
  */
-export const mockApiList: VAApiMetadata[] = [
+export const mockApiList: ApiMetadata[] = [
 	{
 		id: "address-validation",
 		name: "Address Validation",
@@ -47,7 +47,7 @@ export const mockApiList: VAApiMetadata[] = [
 /**
  * Mock detailed API info
  */
-export const mockApiInfo: VAApiInfo = {
+export const mockApiInfo: ApiInfo = {
 	id: "address-validation",
 	name: "Address Validation API",
 	description: "Validate and standardize mailing addresses",
