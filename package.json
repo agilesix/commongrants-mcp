@@ -24,7 +24,7 @@
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "1.19.1",
 		"@scalar/openapi-parser": "^0.22.3",
-		"agents": "^0.2.8",
+		"agents": "0.2.8",
 		"js-yaml": "^4.1.0",
 		"zod": "^3.25.76"
 	},
