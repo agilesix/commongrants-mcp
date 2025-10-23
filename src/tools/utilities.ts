@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { VAApiClient } from "../services/api-client.js";
+import { ApiClient } from "../services/api-client.js";
 import { OpenAPIParser } from "../services/openapi-parser.js";
 
 export function registerUtilityTools(server: McpServer) {
@@ -24,7 +24,7 @@ export function registerUtilityTools(server: McpServer) {
 
 				// If no URL provided, try to get from metadata
 				if (!url) {
-					const metadata = await VAApiClient.getApiMetadata(apiId);
+					const metadata = await ApiClient.getApiMetadata(apiId);
 					url = metadata.healthCheck;
 				}
 
@@ -40,7 +40,7 @@ export function registerUtilityTools(server: McpServer) {
 					};
 				}
 
-				const health = await VAApiClient.checkHealth(url);
+				const health = await ApiClient.checkHealth(url);
 
 				const output = [
 					`Health Check: ${apiId}`,
@@ -87,8 +87,8 @@ export function registerUtilityTools(server: McpServer) {
 			try {
 				// Fetch both specs
 				const [spec1, spec2] = await Promise.all([
-					VAApiClient.getOpenApiSpec(apiId, version1),
-					VAApiClient.getOpenApiSpec(apiId, version2),
+					ApiClient.getOpenApiSpec(apiId, version1),
+					ApiClient.getOpenApiSpec(apiId, version2),
 				]);
 
 				const parser1 = new OpenAPIParser(spec1);

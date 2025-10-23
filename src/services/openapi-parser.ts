@@ -3,7 +3,7 @@
  */
 
 import { dereference } from "@scalar/openapi-parser";
-import type { OpenAPISpec, OperationObject } from "../types/va-api.js";
+import type { OpenAPISpec, OperationObject } from "../types/api-types.js";
 import type { ApiSummary, EndpointInfo, EndpointDetails, SchemaInfo } from "../types/mcp-tools.js";
 
 export class OpenAPIParser {

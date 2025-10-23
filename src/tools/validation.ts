@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { VAApiClient } from "../services/api-client.js";
+import { ApiClient } from "../services/api-client.js";
 import { OpenAPIParser } from "../services/openapi-parser.js";
 import { Validator } from "../services/validator.js";
 import { ExampleGenerator } from "../utils/example-generator.js";
@@ -50,7 +50,7 @@ export function registerValidationTools(server: McpServer) {
 		},
 		async ({ apiId, version, path, method, payload }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				const endpoint = await parser.getEndpointDetails(path, method);
@@ -136,7 +136,7 @@ export function registerValidationTools(server: McpServer) {
 		},
 		async ({ apiId, version, path, method, statusCode, payload }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				const endpoint = await parser.getEndpointDetails(path, method);
@@ -232,7 +232,7 @@ export function registerValidationTools(server: McpServer) {
 		},
 		async ({ apiId, version, path, method, requiredOnly }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				const endpoint = await parser.getEndpointDetails(path, method);
@@ -335,7 +335,7 @@ With fieldPath: Returns detailed rules (pattern, enum values, format, examples)`
 		},
 		async ({ apiId, version, path, method, requestOrResponse = "request", fieldPath }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				const endpoint = await parser.getEndpointDetails(path, method);

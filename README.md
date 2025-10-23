@@ -1,15 +1,20 @@
-# VA Lighthouse MCP Server
+# CommonGrants MCP Server
 
-Model Context Protocol server for progressive discovery and validation of VA Lighthouse APIs. Built on Cloudflare Workers with TypeScript and Zod validation.
+Model Context Protocol server for progressive discovery and validation of CommonGrants APIs. Built on Cloudflare Workers with TypeScript and Zod validation.
 
 ## Features
 
 **13 MCP Tools** across 4 categories:
 
-- **Discovery** (2): List APIs, get metadata
+- **Discovery** (2): List API versions, get version metadata
 - **Exploration** (5): Summarize APIs, browse endpoints, search operations, view schemas
 - **Validation** (4): Validate payloads, generate examples, get validation rules (Zod-based)
 - **Utilities** (2): Check health, compare versions
+
+## Supported API Versions
+
+- **v0.3.0** (latest) - Latest version with expanded endpoints
+- **v0.2.0** (stable) - Stable version
 
 ## Architecture
 
@@ -18,8 +23,8 @@ Model Context Protocol server for progressive discovery and validation of VA Lig
 │  13 MCP Tools (4 categories)            │
 ├─────────────────────────────────────────┤
 │  • Cache (LRU, 1hr TTL)                 │
-│  • API Client (VA Lighthouse)           │
-│  • OpenAPI Parser (@scalar)             │
+│  • API Client (CommonGrants)            │
+│  • OpenAPI Parser (@scalar, YAML)       │
 │  • Validator (Zod)                      │
 ├─────────────────────────────────────────┤
 │  Cloudflare Workers Runtime             │
@@ -29,8 +34,8 @@ Model Context Protocol server for progressive discovery and validation of VA Lig
 ## Tools
 
 **Discovery** (2)
-- `list_lighthouse_apis` - List all APIs
-- `get_api_info` - Get API metadata
+- `list_commongrants_apis` - List all API versions
+- `get_api_version_info` - Get version metadata
 
 **Exploration** (5)
 - `get_api_summary` - API overview
@@ -69,18 +74,18 @@ Server runs at `http://localhost:8788/sse`
 
 ## Testing
 
-**Unit Tests** (124 tests)
+**Unit Tests**
 ```bash
 npm run test:unit
 ```
 
-**Integration Tests** (75 tests)
+**Integration Tests**
 ```bash
 npm run dev              # Terminal 1
 npm run test:integration # Terminal 2
 ```
 
-**All Tests** (199 tests - 100% pass rate)
+**All Tests**
 ```bash
 npm run test:all
 ```
@@ -100,7 +105,7 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "va-lighthouse": {
+    "commongrants": {
       "command": "npx",
       "args": ["mcp-remote", "http://localhost:8788/sse"]
     }
@@ -108,7 +113,7 @@ Add to `claude_desktop_config.json`:
 }
 ```
 
-For production, use `https://va-lighthouse-mcp.<your-account>.workers.dev/sse`
+For production, use `https://commongrants-mcp.<your-account>.workers.dev/sse`
 
 ## Stack
 
@@ -116,39 +121,36 @@ For production, use `https://va-lighthouse-mcp.<your-account>.workers.dev/sse`
 - **Language**: TypeScript 5.9
 - **MCP**: @modelcontextprotocol/sdk 1.19
 - **Validation**: Zod 3.25
-- **Parser**: @scalar/openapi-parser 0.22
-- **Testing**: Vitest 3.2 (199 tests, 100% pass rate)
+- **Parser**: @scalar/openapi-parser 0.22 (with YAML support)
+- **YAML**: js-yaml 4.1
+- **Testing**: Vitest 3.2
 
 ### Caching
 - LRU cache with 1hr TTL (max 50 items)
 - Automatic cleanup of expired entries
 
 ### Data Sources
-- VA Lighthouse API: `https://api.va.gov/internal/docs/`
+- CommonGrants v0.3.0: `https://commongrants.org/openapi/openapi.0.3.0.yaml`
+- CommonGrants v0.2.0: `https://commongrants.org/openapi/openapi.0.2.0.yaml`
 
 ## Project Structure
 
 ```
 src/
 ├── index.ts              # MCP server
+├── config/               # CommonGrants API configuration
 ├── services/             # Cache, API client, parser, validator (Zod)
 ├── tools/                # 13 MCP tools (4 files)
 └── utils/                # Error formatting, example generation
 test/
-├── unit/                 # 124 tests (Workers pool)
-└── integration/          # 75 tests (Node.js + HTTP)
-```
-
-## Health Check
-
-```bash
-curl http://localhost:8788/health
-# {"status":"ok","service":"VA Lighthouse API Discovery MCP Server","version":"1.0.0"}
+├── unit/                 # Unit tests (Workers pool)
+└── integration/          # Integration tests (Node.js + HTTP)
 ```
 
 ## Resources
 
-- [VA Lighthouse API](https://developer.va.gov/)
+- [CommonGrants Protocol](https://commongrants.org/protocol/)
+- [CommonGrants API Documentation](https://commongrants.org/protocol/api-docs/)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [Cloudflare Workers](https://developers.cloudflare.com/workers/)
 

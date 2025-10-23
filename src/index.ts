@@ -6,24 +6,24 @@ import { registerValidationTools } from "./tools/validation.js";
 import { registerUtilityTools } from "./tools/utilities.js";
 
 /**
- * VA Lighthouse API Discovery MCP Server
+ * CommonGrants API MCP Server
  *
  * A Model Context Protocol (MCP) server that provides AI assistants with tools
- * to discover, explore, and validate VA Lighthouse APIs.
+ * to discover, explore, and validate CommonGrants APIs.
  *
  * ## Tool Categories
  *
- * - **Discovery** (2 tools): List APIs and get API metadata
+ * - **Discovery** (2 tools): List API versions and get version metadata
  * - **Exploration** (5 tools): Browse endpoints, search operations, view schemas
  * - **Validation** (4 tools): Validate payloads with Zod, generate examples
  * - **Utilities** (2 tools): Health checks and version comparison
  *
- * @see https://developer.va.gov/ for VA Lighthouse API documentation
+ * @see https://commongrants.org/protocol/ for CommonGrants protocol documentation
  * @see https://modelcontextprotocol.io/ for MCP specification
  */
-export class VALighthouseMCP extends McpAgent<Env> {
+export class CommonGrantsMCP extends McpAgent<Env> {
 	server = new McpServer({
-		name: "VA Lighthouse API Discovery",
+		name: "CommonGrants API",
 		version: "1.0.0",
 	});
 
@@ -34,9 +34,9 @@ export class VALighthouseMCP extends McpAgent<Env> {
 		registerValidationTools(this.server);
 		registerUtilityTools(this.server);
 
-		console.log("VA Lighthouse API Discovery MCP Server initialized");
+		console.log("CommonGrants API MCP Server initialized");
 		console.log("Available tool categories:");
-		console.log("  • Discovery: list_lighthouse_apis, get_api_info");
+		console.log("  • Discovery: list_commongrants_apis, get_api_version_info");
 		console.log("  • Exploration: get_api_summary, list_api_endpoints, get_endpoint_details, get_api_schemas, search_api_operations");
 		console.log("  • Validation: validate_request_payload, validate_response_payload, generate_example_payload, get_validation_rules");
 		console.log("  • Utilities: check_api_health, compare_api_versions");
@@ -62,12 +62,12 @@ export default {
 
 		// Route Server-Sent Events for streaming responses
 		if (url.pathname === "/sse" || url.pathname === "/sse/message") {
-			return VALighthouseMCP.serveSSE("/sse").fetch(request, env, ctx);
+			return CommonGrantsMCP.serveSSE("/sse").fetch(request, env, ctx);
 		}
 
 		// Route standard MCP JSON-RPC requests
 		if (url.pathname === "/mcp") {
-			return VALighthouseMCP.serve("/mcp").fetch(request, env, ctx);
+			return CommonGrantsMCP.serve("/mcp").fetch(request, env, ctx);
 		}
 
 		// Return 404 for all other paths

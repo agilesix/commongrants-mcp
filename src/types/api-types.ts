@@ -1,8 +1,8 @@
 /**
- * VA Lighthouse API type definitions
+ * CommonGrants API type definitions
  */
 
-export interface VAApiMetadata {
+export interface ApiMetadata {
 	name: string;
 	id: string;
 	description?: string;
@@ -13,14 +13,14 @@ export interface VAApiMetadata {
 	authRequired?: boolean;
 }
 
-export interface VAApiVersion {
+export interface ApiVersion {
 	version: string;
 	status: "current" | "deprecated" | "beta";
 	releaseDate?: string;
 	deprecationDate?: string;
 }
 
-export interface VAApiVersionInfo {
+export interface ApiVersionInfo {
 	version: string;
 	baseUrl: string;
 	openApiUrl: string;
@@ -29,7 +29,7 @@ export interface VAApiVersionInfo {
 	isCurrent: boolean;
 }
 
-export interface VAApiInfo extends VAApiMetadata {
+export interface ApiInfo extends ApiMetadata {
 	openApiUrl: string;
 	documentation?: string;
 	contact?: {
@@ -37,7 +37,7 @@ export interface VAApiInfo extends VAApiMetadata {
 		email?: string;
 		url?: string;
 	};
-	versionDetails?: VAApiVersionInfo[];
+	versionDetails?: ApiVersionInfo[];
 }
 
 export interface OpenAPISpec {

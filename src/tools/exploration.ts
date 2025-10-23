@@ -4,7 +4,7 @@
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { VAApiClient } from "../services/api-client.js";
+import { ApiClient } from "../services/api-client.js";
 import { OpenAPIParser } from "../services/openapi-parser.js";
 
 /**
@@ -168,7 +168,7 @@ export function registerExplorationTools(server: McpServer) {
 		},
 		async ({ apiId, version }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 				const summary = await parser.getSummary();
 
@@ -239,7 +239,7 @@ export function registerExplorationTools(server: McpServer) {
 		},
 		async ({ apiId, version, tag, method, includeDeprecated }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				const endpoints = await parser.listEndpoints({
@@ -315,7 +315,7 @@ Use minimal for quick structure overview, standard for most cases, full only whe
 		},
 		async ({ apiId, version, path, method, detail_level = "standard", max_depth = 3 }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				const details = await parser.getEndpointDetails(path, method);
@@ -457,7 +457,7 @@ Use minimal for quick structure overview, standard for most cases, full only whe
 		"get_api_schemas",
 		`Lists reusable schema components defined in the OpenAPI specification.
 
-⚠️  Important: This tool only returns schemas defined in the 'components/schemas' section of the OpenAPI spec. Many VA APIs define schemas inline within endpoint definitions instead of creating reusable components, which will result in 0 schemas returned.
+⚠️  Important: This tool only returns schemas defined in the 'components/schemas' section of the OpenAPI spec. Some APIs define schemas inline within endpoint definitions instead of creating reusable components, which will result in 0 schemas returned.
 
 If you need to see schemas for a specific endpoint:
 • Use 'get_endpoint_details' to view inline request/response schemas
@@ -471,7 +471,7 @@ Returns: Array of schema names with type, description, and properties.`,
 		},
 		async ({ apiId, version, schemaName }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				if (schemaName) {
@@ -578,7 +578,7 @@ To view schemas for this API:
 		},
 		async ({ apiId, version, query }) => {
 			try {
-				const spec = await VAApiClient.getOpenApiSpec(apiId, version);
+				const spec = await ApiClient.getOpenApiSpec(apiId, version);
 				const parser = new OpenAPIParser(spec);
 
 				const results = await parser.searchOperations(query);

@@ -1,14 +1,14 @@
 # Integration Tests
 
-Integration tests for the VA Lighthouse MCP Server. These tests verify end-to-end functionality by testing the running server via HTTP/MCP protocol.
+Integration tests for the CommonGrants MCP Server. These tests verify end-to-end functionality by testing the running server via HTTP/MCP protocol.
 
 ## Overview
 
 The integration test suite validates all 13 MCP tools through actual server communication:
 
-- **Discovery Tools** (2): API listing and metadata retrieval
+- **Discovery Tools** (2): API version listing and metadata retrieval
 - **Exploration Tools** (5): API summaries, endpoints, schemas, and search
-- **Validation Tools** (4): Payload validation with Zod (migrated from ajv)
+- **Validation Tools** (4): Payload validation with Zod
 - **Utility Tools** (2): Health checks and version comparison
 
 ## Prerequisites
@@ -124,7 +124,7 @@ const client = createMCPClient();
 await client.initialize();
 
 // Call a tool
-const result = await client.callTool("list_lighthouse_apis", {
+const result = await client.callTool("list_commongrants_apis", {
 	includeDeprecated: false,
 });
 
@@ -154,7 +154,7 @@ npm run test:integration -- --reporter=verbose
 ### Run Single Test
 
 ```bash
-npm run test:integration -- -t "should return a list of APIs"
+npm run test:integration -- -t "should return a list of API versions"
 ```
 
 ### Save Test Logs
@@ -183,14 +183,14 @@ curl http://localhost:8788/health
 
 ### ❌ "Timeout"
 
-**Solution**: Network calls may be slow. The timeout is set to 30 seconds. Check your internet connection or VA API availability.
+**Solution**: Network calls may be slow. The timeout is set to 30 seconds. Check your internet connection or CommonGrants API availability.
 
 ### ❌ Tests fail sporadically
 
 **Solution**:
 - Restart the server: `npm run dev`
 - Clear Wrangler cache: `rm -rf .wrangler/`
-- Check VA API health: The tests call real VA APIs which may be temporarily unavailable
+- Check CommonGrants API health: The tests fetch real OpenAPI specs which may be temporarily unavailable
 
 ## Writing New Tests
 
@@ -251,26 +251,14 @@ describe("your_tool_name", () => {
 | **Runtime** | Workers pool (in-memory) | Node.js (HTTP) |
 | **Speed** | Fast (~4 seconds) | Slower (~10-30 seconds) |
 | **Server** | Not needed | Must be running |
-| **Dependencies** | Mocked | Real VA APIs |
+| **Dependencies** | Mocked | Real CommonGrants APIs |
 | **Config** | `vitest.config.ts` | `vitest.integration.config.ts` |
 
 ## Related Documentation
 
 - **Unit Tests**: See `test/unit/` for isolated function tests
-- **Test Summary**: See `TEST_IMPLEMENTATION_SUMMARY.md` for complete test overview
 - **MCP Protocol**: See MCP SDK documentation
-- **VA Lighthouse APIs**: See https://developer.va.gov
-
-## Migrated from JavaScript
-
-These tests were converted from the original JavaScript integration tests (`tests/` directory) to TypeScript with Vitest. The conversion provides:
-
-- ✅ Type safety with TypeScript
-- ✅ Better IDE support
-- ✅ Consistent test framework (Vitest)
-- ✅ Improved assertions and error messages
-- ✅ Shared test infrastructure
-- ✅ Zod validation testing (migrated from ajv)
+- **CommonGrants**: See https://commongrants.org/protocol/
 
 ## Contributing
 
@@ -286,4 +274,4 @@ When adding new tests:
 
 **Last Updated**: 2025-10-23
 **Test Framework**: Vitest 3.2.4
-**Validation Library**: Zod 3.25.76 (migrated from ajv)
+**Validation Library**: Zod 3.25.76

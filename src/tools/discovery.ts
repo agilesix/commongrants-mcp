@@ -1,142 +1,49 @@
 /**
- * Discovery tools for listing and getting VA Lighthouse API information
+ * Discovery tools for listing and getting CommonGrants API information
  */
 
 import { z } from "zod";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { VAApiClient } from "../services/api-client.js";
-import type { VAApiMetadata } from "../types/va-api.js";
-
-/**
- * Category mapping for VA Lighthouse APIs
- */
-const API_CATEGORIES: Record<string, { category: string; description: string }> = {
-	// Benefits APIs
-	"benefits-claims": { category: "benefits", description: "Submit and track benefits claims" },
-	"benefits-intake": { category: "benefits", description: "Upload benefits-related documents" },
-	"decision-reviews": { category: "benefits", description: "Request decision reviews and appeals" },
-	"appeals": { category: "benefits", description: "Track and manage appeals" },
-	"loan-guaranty": { category: "benefits", description: "Home loan benefit information" },
-	"notice-of-disagreement": { category: "benefits", description: "File notice of disagreement" },
-	"supplemental-claims": { category: "benefits", description: "Submit supplemental claims" },
-	"higher-level-reviews": { category: "benefits", description: "Request higher-level reviews" },
-
-	// Health APIs
-	"health": { category: "health", description: "Access patient health records (FHIR)" },
-	"fhir": { category: "health", description: "VA Health FHIR API" },
-	"community-care": { category: "health", description: "Community care eligibility" },
-	"prescriptions": { category: "health", description: "Prescription tracking and refills" },
-	"appointments": { category: "health", description: "Schedule and manage VA appointments" },
-	"immunizations": { category: "health", description: "Immunization records" },
-
-	// Facilities APIs
-	"facilities": { category: "facilities", description: "Find VA facilities and services" },
-	"va-facilities": { category: "facilities", description: "VA facilities locator" },
-
-	// Verification APIs
-	"veteran-verification": { category: "verification", description: "Verify veteran status" },
-	"veteran-confirmation": { category: "verification", description: "Confirm veteran status" },
-	"disability-rating": { category: "verification", description: "Access disability rating information" },
-	"service-history": { category: "verification", description: "Military service history verification" },
-	"veteran-status": { category: "verification", description: "Veteran status confirmation" },
-
-	// Other APIs
-	"address-validation": { category: "other", description: "Validate postal addresses" },
-	"forms": { category: "other", description: "VA forms library and submission" },
-	"representative": { category: "other", description: "Accredited representative information" },
-	"direct-deposit": { category: "other", description: "Manage direct deposit information" },
-	"letters": { category: "other", description: "Generate VA benefit letters" },
-};
+import { ApiClient } from "../services/api-client.js";
+import type { ApiMetadata } from "../types/api-types.js";
 
 export function registerDiscoveryTools(server: McpServer) {
 	/**
-	 * List all available VA Lighthouse APIs
+	 * List all available CommonGrants API versions
 	 */
 	server.tool(
-		"list_lighthouse_apis",
-		"Lists all available VA Lighthouse APIs with their metadata, optionally filtered by category",
+		"list_commongrants_apis",
+		"Lists all available CommonGrants API versions with their metadata",
 		{
-			includeDeprecated: z.boolean().optional().describe("Include deprecated APIs in the results"),
-			category: z.enum(["benefits", "health", "facilities", "verification", "other", "all"])
-				.optional()
-				.describe("Filter APIs by category (benefits, health, facilities, verification, other, all). Default: all"),
+			includeDeprecated: z.boolean().optional().describe("Include deprecated API versions in the results"),
 		},
-		async ({ includeDeprecated, category }) => {
+		async ({ includeDeprecated }) => {
 			try {
-				const apis = await VAApiClient.listApis();
-
-				// Enrich APIs with category and description from mapping
-				const enrichedApis = apis.map((api) => {
-					const categoryInfo = API_CATEGORIES[api.id];
-					return {
-						...api,
-						category: categoryInfo?.category || "other",
-						description: api.description || categoryInfo?.description || "",
-					};
-				});
+				const apis = await ApiClient.listApis();
 
 				// Filter deprecated if requested
-				let filtered = includeDeprecated
-					? enrichedApis
-					: enrichedApis.filter((api) => api.status !== "deprecated");
-
-				// Filter by category if specified
-				if (category && category !== "all") {
-					filtered = filtered.filter((api) => api.category === category);
-				}
-
-				// Group APIs by category
-				const grouped = filtered.reduce((acc, api) => {
-					const cat = api.category || "other";
-					if (!acc[cat]) {
-						acc[cat] = [];
-					}
-					acc[cat].push(api);
-					return acc;
-				}, {} as Record<string, VAApiMetadata[]>);
+				const filtered = includeDeprecated
+					? apis
+					: apis.filter((api) => api.status !== "deprecated");
 
 				// Format output
 				const output = [
-					`Found ${filtered.length} VA Lighthouse API${filtered.length === 1 ? "" : "s"}`,
+					`Found ${filtered.length} CommonGrants API version${filtered.length === 1 ? "" : "s"}`,
+					"",
 				];
 
-				if (category && category !== "all") {
-					output[0] += ` in category: ${category}`;
-				}
+				for (const api of filtered) {
+					output.push(`• ${api.name} (${api.id})`);
 
-				output.push("\n");
-
-				// Category display names and order
-				const categoryNames: Record<string, string> = {
-					benefits: "Benefits",
-					health: "Health",
-					facilities: "Facilities",
-					verification: "Verification",
-					other: "Other",
-				};
-
-				const categoryOrder = ["benefits", "health", "facilities", "verification", "other"];
-
-				// Output APIs grouped by category
-				for (const cat of categoryOrder) {
-					const apisInCategory = grouped[cat];
-					if (!apisInCategory || apisInCategory.length === 0) continue;
-
-					output.push(`## ${categoryNames[cat]} (${apisInCategory.length})\n`);
-
-					for (const api of apisInCategory) {
-						output.push(`• ${api.name} (${api.id})`);
-
-						if (api.description) {
-							output.push(`  ${api.description}`);
-						}
-
-						if (api.status && api.status !== "active") {
-							output.push(`  Status: ${api.status}`);
-						}
-
-						output.push("");
+					if (api.description) {
+						output.push(`  ${api.description}`);
 					}
+
+					if (api.status && api.status !== "active") {
+						output.push(`  Status: ${api.status}`);
+					}
+
+					output.push("");
 				}
 
 				return {
@@ -157,17 +64,17 @@ export function registerDiscoveryTools(server: McpServer) {
 	);
 
 	/**
-	 * Get detailed information about a specific API
+	 * Get detailed information about a specific API version
 	 */
 	server.tool(
-		"get_api_info",
-		"Gets detailed information about a specific VA Lighthouse API",
+		"get_api_version_info",
+		"Gets detailed information about a specific CommonGrants API version",
 		{
-			apiId: z.string().describe("The API ID (e.g., 'benefits-claims', 'facilities')"),
+			apiId: z.string().describe("The API ID (e.g., 'commongrants-0.3.0', 'commongrants-0.2.0')"),
 		},
 		async ({ apiId }) => {
 			try {
-				const apiInfo = await VAApiClient.getApiMetadata(apiId);
+				const apiInfo = await ApiClient.getApiMetadata(apiId);
 
 				// Format output
 				const output = [
@@ -184,19 +91,11 @@ export function registerDiscoveryTools(server: McpServer) {
 					output.push(`Status: ${apiInfo.status}`);
 				}
 
-				if (apiInfo.authRequired !== undefined) {
-					output.push(`Authentication Required: ${apiInfo.authRequired ? "Yes" : "No"}`);
-				}
-
-				if (apiInfo.category) {
-					output.push(`Category: ${apiInfo.category}`);
-				}
-
 				output.push("");
 
 				// Display version details if available
 				if (apiInfo.versionDetails && apiInfo.versionDetails.length > 0) {
-					output.push(`Available Versions (${apiInfo.versionDetails.length}):\n`);
+					output.push(`Version Details:\n`);
 
 					for (const version of apiInfo.versionDetails) {
 						// Add marker for current version
@@ -209,10 +108,6 @@ export function registerDiscoveryTools(server: McpServer) {
 
 						output.push(`    OpenAPI Spec: ${version.openApiUrl}`);
 
-						if (version.healthCheck) {
-							output.push(`    Health Check: ${version.healthCheck}`);
-						}
-
 						if (version.status === "deprecated") {
 							output.push(`    Status: deprecated`);
 						}
@@ -222,19 +117,12 @@ export function registerDiscoveryTools(server: McpServer) {
 				} else {
 					// Fallback to simple version list if versionDetails not available
 					if (apiInfo.versions && apiInfo.versions.length > 0) {
-						output.push(`Available Versions (${apiInfo.versions.length}):`);
-						for (const version of apiInfo.versions) {
-							output.push(`  • ${version}`);
-						}
+						output.push(`Version: ${apiInfo.versions.join(", ")}`);
 						output.push("");
 					}
 
 					if (apiInfo.openApiUrl) {
 						output.push(`OpenAPI Spec: ${apiInfo.openApiUrl}`);
-					}
-
-					if (apiInfo.healthCheck) {
-						output.push(`Health Check: ${apiInfo.healthCheck}`);
 					}
 				}
 
